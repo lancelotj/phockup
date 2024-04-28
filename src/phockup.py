@@ -14,7 +14,7 @@ from src.date import Date
 from src.exif import Exif
 
 logger = logging.getLogger('phockup')
-ignored_files = ('.DS_Store', 'Thumbs.db')
+ignored_files = set(['.DS_Store', 'Thumbs.db', '@eaDir'])
 
 
 class Phockup:
