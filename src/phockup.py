@@ -14,7 +14,8 @@ from src.date import Date
 from src.exif import Exif
 
 logger = logging.getLogger('phockup')
-ignored_files = set(['.DS_Store', 'Thumbs.db', '@eaDir'])
+ignored_files = set(['.DS_Store', 'Thumbs.db'])
+ignored_dirs = set(['@eaDir'])
 
 
 class Phockup:
@@ -157,6 +158,8 @@ class Phockup:
                 except KeyboardInterrupt:
                     logger.warning("Received interrupt. Shutting down...")
                     return
+            # skip ignored dirs
+            dirnames[:] = [d for d in dirnames if d not in ignored_dirs]
             if root.count(os.sep) >= self.stop_depth:
                 del dirnames[:]
 
