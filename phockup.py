@@ -342,7 +342,6 @@ Example:
 
     return parser.parse_args(args)
 
-
 def setup_logging(options):
     """Configure logging."""
     root = logging.getLogger('')
@@ -394,8 +393,7 @@ def main(options):
         to_date=options.to_date
     )
 
-
-if __name__ == '__main__':
+def cli():
     try:
         options = parse_args()
         setup_logging(options)
@@ -407,3 +405,7 @@ if __name__ == '__main__':
         logger.error("Exiting phockup...")
         sys.exit(1)
     sys.exit(0)
+
+
+if __name__ == '__main__':
+    cli()

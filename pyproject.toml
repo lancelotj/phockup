@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "phockup"
+version = "0.1.0"
+description = ""
+authors = ["Lance Jian <lancejian@fortinet.com>"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+phockup = "phockup:cli"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+tqdm = "^4.66.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
