@@ -1,8 +1,6 @@
 FROM python:3.10-alpine
-RUN apk --no-cache add exiftool \
+RUN apk --no-cache add exiftool bash flock \
     && pip install --no-cache-dir -r /opt/phockup/requirements.txt \
-    && apk add bash \
-    && apk add flock
 
 VOLUME /mnt/input
 VOLUME /mnt/output
