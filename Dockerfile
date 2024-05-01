@@ -9,8 +9,8 @@ ENV CRON ""
 ENV OPTIONS ""
 
 
-RUN ln -s /opt/phockup/phockup.py /usr/local/bin/phockup
 COPY . /opt/phockup
+RUN ln -s /opt/phockup/phockup.py /usr/local/bin/phockup
 RUN chmod +x /opt/phockup/entrypoint.sh
 
 ENTRYPOINT ["/opt/phockup/entrypoint.sh"]
