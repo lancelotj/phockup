@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from src.date import Date
 from src.exif import Exif
+from src.filetype import get_file_type
 
 logger = logging.getLogger('phockup')
 ignored_files = set(['.DS_Store', 'Thumbs.db'])
@@ -40,10 +41,12 @@ class Phockup:
 
         self.input_dir = input_dir
         self.output_dir = output_dir
-        self.output_prefix = args.get('output_prefix' or None)
-        self.output_suffix = args.get('output_suffix' or '')
-        self.no_date_dir = args.get('no_date_dir') or Phockup.DEFAULT_NO_DATE_DIRECTORY
-        self.dir_format = args.get('dir_format') or os.path.sep.join(Phockup.DEFAULT_DIR_FORMAT)
+        self.output_prefix = args.get('output_prefix', None)
+        self.output_suffix = args.get('output_suffix', '')
+        self.no_date_dir = args.get(
+            'no_date_dir') or Phockup.DEFAULT_NO_DATE_DIRECTORY
+        self.dir_format = args.get('dir_format') or os.path.sep.join(
+            Phockup.DEFAULT_DIR_FORMAT)
         self.move = args.get('move', False)
         self.link = args.get('link', False)
         self.original_filenames = args.get('original_filenames', False)
@@ -62,19 +65,24 @@ class Phockup:
         self.from_date = args.get("from_date", None)
         self.to_date = args.get("to_date", None)
         if self.from_date is not None:
-            self.from_date = Date.strptime(f"{self.from_date} 00:00:00", "%Y-%m-%d %H:%M:%S")
+            self.from_date = Date.strptime(f"{self.from_date} 00:00:00",
+                                           "%Y-%m-%d %H:%M:%S")
         if self.to_date is not None:
-            self.to_date = Date.strptime(f"{self.to_date} 23:59:59", "%Y-%m-%d %H:%M:%S")
+            self.to_date = Date.strptime(f"{self.to_date} 23:59:59",
+                                         "%Y-%m-%d %H:%M:%S")
 
         if self.max_concurrency > 1:
-            logger.info(f"Using {self.max_concurrency} workers to process files.")
+            logger.info(
+                f"Using {self.max_concurrency} workers to process files.")
 
         self.stop_depth = self.input_dir.count(os.sep) + self.max_depth \
             if self.max_depth > -1 else sys.maxsize
         self.file_type = args.get('file_type', None)
 
         if self.dry_run:
-            logger.warning("Dry-run phockup (does a trial run with no permanent changes)...")
+            logger.warning(
+                "Dry-run phockup (does a trial run with no permanent changes)..."
+            )
 
         self.check_directories()
         # Get the number of files
@@ -99,9 +107,12 @@ class Phockup:
             self.print_action_report(run_time)
 
     def print_action_report(self, run_time):
-        logger.info(f"Processed {self.files_processed} files in {run_time:.2f} seconds. Average Throughput: {self.files_processed/run_time:.2f} files/second")
+        logger.info(
+            f"Processed {self.files_processed} files in {run_time:.2f} seconds. Average Throughput: {self.files_processed/run_time:.2f} files/second"
+        )
         if self.unknown_found:
-            logger.info(f"Found {self.unknown_found} files without EXIF date data.")
+            logger.info(
+                f"Found {self.unknown_found} files without EXIF date data.")
         if self.duplicates_found:
             logger.info(f"Found {self.duplicates_found} duplicate files.")
         if self.files_copied:
@@ -123,16 +134,22 @@ class Phockup:
         """
 
         if not os.path.exists(self.input_dir):
-            raise RuntimeError(f"Input directory '{self.input_dir}' does not exist")
+            raise RuntimeError(
+                f"Input directory '{self.input_dir}' does not exist")
         if not os.path.isdir(self.input_dir):
-            raise RuntimeError(f"Input directory '{self.input_dir}' is not a directory")
+            raise RuntimeError(
+                f"Input directory '{self.input_dir}' is not a directory")
         if not os.path.exists(self.output_dir):
-            logger.warning(f"Output directory '{self.output_dir}' does not exist, creating now")
+            logger.warning(
+                f"Output directory '{self.output_dir}' does not exist, creating now"
+            )
             try:
                 if not self.dry_run:
                     os.makedirs(self.output_dir)
             except OSError:
-                raise OSError(f"Cannot create output '{self.output_dir}' directory. No write access!")
+                raise OSError(
+                    f"Cannot create output '{self.output_dir}' directory. No write access!"
+                )
 
     def walk_directory(self):
         """
@@ -164,6 +181,7 @@ class Phockup:
                 del dirnames[:]
 
     def rm_subdirs(self):
+
         def _get_depth(sub_path):
             return sub_path.count(os.sep) - self.input_dir.count(os.sep)
 
@@ -195,7 +213,8 @@ class Phockup:
         Return None if other
         Use mimetype to determine if the file is an image or video.
         """
-        patternImage = re.compile('^(image/.+|application/vnd.adobe.photoshop)$')
+        patternImage = re.compile(
+            '^(image/.+|application/vnd.adobe.photoshop)$')
         if patternImage.match(mimetype):
             return 'image'
 
@@ -212,15 +231,16 @@ class Phockup:
         directory unless user included a regex from filename or uses timestamp.
         """
         try:
-            path = [self.output_dir,
-                    self.output_prefix,
-                    date['date'].date().strftime(self.dir_format),
-                    self.output_suffix]
+            path = [
+                self.output_dir, self.output_prefix,
+                date['date'].date().strftime(self.dir_format),
+                self.output_suffix
+            ]
         except (TypeError, ValueError):
-            path = [self.output_dir,
-                    self.output_prefix,
-                    self.no_date_dir,
-                    self.output_suffix]
+            path = [
+                self.output_dir, self.output_prefix, self.no_date_dir,
+                self.output_suffix
+            ]
         # Remove any None values that made it in the path
         path = [p for p in path if p is not None]
         fullpath = os.path.normpath(os.path.sep.join(path))
@@ -268,7 +288,8 @@ class Phockup:
                     pass
             except KeyboardInterrupt:
                 logger.warning(
-                        f"Received interrupt. Shutting down {self.max_concurrency} workers...")
+                    f"Received interrupt. Shutting down {self.max_concurrency} workers..."
+                )
                 executor.shutdown(wait=True)
                 return False
         return True
@@ -282,20 +303,26 @@ class Phockup:
             return None
 
         progress = f'{filename}'
+        file_type = get_file_type(filename)
+        if self.file_type is not None and self.file_type != file_type:
+            progress = f'{progress} => skipped, file is "{file_type}" \
+but looking for "{self.file_type}"'
 
-        output, target_file_name, target_file_path, target_file_type, file_date = self.get_file_name_and_path(filename)
+            logger.info(progress)
+            self.files_processed += 1
+            if self.progress:
+                self.pbar.update(1)
+            return
+
+        output, target_file_name, target_file_path, target_file_type, file_date = self.get_file_name_and_path(
+            filename)
         suffix = 1
         target_file = target_file_path
 
         while True:
-            if self.file_type is not None \
-                    and self.file_type != target_file_type:
-                progress = f"{progress} => skipped, file is '{target_file_type}' \
-but looking for '{self.file_type}'"
-                logger.info(progress)
-                break
 
-            date_unknown = file_date is None or output.endswith(self.no_date_dir)
+            date_unknown = file_date is None or output.endswith(
+                self.no_date_dir)
             if self.skip_unknown and output.endswith(self.no_date_dir):
                 # Skip files that didn't generate a path from EXIF data
                 progress = f"{progress} => skipped, unknown date EXIF information for '{target_file_name}'"
@@ -322,7 +349,8 @@ but looking for '{self.file_type}'"
                     break
 
             if os.path.isfile(target_file):
-                if filename != target_file and filecmp.cmp(filename, target_file, shallow=False):
+                if filename != target_file and filecmp.cmp(
+                        filename, target_file, shallow=False):
                     if self.movedel and self.move and self.skip_unknown:
                         if not self.dry_run:
                             os.remove(filename)
@@ -388,8 +416,8 @@ but looking for '{self.file_type}'"
 
         date = None
         if target_file_type in ['image', 'video']:
-            date = Date(filename).from_exif(exif_data, self.timestamp, self.date_regex,
-                                            self.date_field)
+            date = Date(filename).from_exif(exif_data, self.timestamp,
+                                            self.date_regex, self.date_field)
             output = self.get_output_dir(date)
             target_file_name = self.get_file_name(filename, date)
             if not self.original_filenames:
@@ -406,7 +434,8 @@ but looking for '{self.file_type}'"
         Process xmp files. These are metadata for RAW images
         """
         xmp_original_with_ext = original_filename + '.xmp'
-        xmp_original_without_ext = os.path.splitext(original_filename)[0] + '.xmp'
+        xmp_original_without_ext = os.path.splitext(
+            original_filename)[0] + '.xmp'
 
         suffix = f'-{suffix}' if suffix > 1 else ''
 

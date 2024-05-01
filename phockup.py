@@ -30,13 +30,10 @@ def parse_args(args=sys.argv[1:]):
         description=PROGRAM_DESCRIPTION,
         formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.version = f"v{__version__}"
-
-    parser.add_argument(
-        '-v',
-        '--version',
-        action='version',
-    )
+    parser.add_argument('-v',
+                        '--version',
+                        action='version',
+                        version=f'v{__version__}')
 
     parser.add_argument(
         '-d',
@@ -342,6 +339,7 @@ Example:
 
     return parser.parse_args(args)
 
+
 def setup_logging(options):
     """Configure logging."""
     root = logging.getLogger('')
@@ -367,31 +365,30 @@ def setup_logging(options):
 def main(options):
     check_dependencies()
 
-    return Phockup(
-        options.input_dir,
-        options.output_dir,
-        dir_format=options.date,
-        move=options.move,
-        link=options.link,
-        date_regex=options.regex,
-        original_filenames=options.original_names,
-        timestamp=options.timestamp,
-        date_field=options.date_field,
-        dry_run=options.dry_run,
-        quiet=options.quiet,
-        progress=options.progress,
-        max_depth=options.maxdepth,
-        file_type=options.file_type,
-        max_concurrency=options.max_concurrency,
-        no_date_dir=options.no_date_dir,
-        skip_unknown=options.skip_unknown,
-        movedel=options.movedel,
-        rmdirs=options.rmdirs,
-        output_prefix=options.output_prefix,
-        output_suffix=options.output_suffix,
-        from_date=options.from_date,
-        to_date=options.to_date
-    )
+    return Phockup(options.input_dir,
+                   options.output_dir,
+                   dir_format=options.date,
+                   move=options.move,
+                   link=options.link,
+                   date_regex=options.regex,
+                   original_filenames=options.original_names,
+                   timestamp=options.timestamp,
+                   date_field=options.date_field,
+                   dry_run=options.dry_run,
+                   quiet=options.quiet,
+                   progress=options.progress,
+                   max_depth=options.maxdepth,
+                   file_type=options.file_type,
+                   max_concurrency=options.max_concurrency,
+                   no_date_dir=options.no_date_dir,
+                   skip_unknown=options.skip_unknown,
+                   movedel=options.movedel,
+                   rmdirs=options.rmdirs,
+                   output_prefix=options.output_prefix,
+                   output_suffix=options.output_suffix,
+                   from_date=options.from_date,
+                   to_date=options.to_date)
+
 
 def cli():
     try:
