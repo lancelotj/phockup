@@ -128,8 +128,9 @@ def get_file_type(file_path):
     _, ext = splitext(file_path)
     if not ext:
         return None
-    real_ext = ext[1:]
+    real_ext = ext[1:].lower()
     if real_ext in video_extensions:
         return 'video'
     if real_ext in image_extensions:
         return 'image'
+    return None
