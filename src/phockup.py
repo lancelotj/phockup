@@ -304,6 +304,15 @@ class Phockup:
 
         progress = f'{filename}'
         file_type = get_file_type(filename)
+        if file_type is None:
+            # found an unsupported type
+            progress = f'{progress} => not supported'
+            logger.info(progress)
+            self.files_processed += 1
+            if self.progress:
+                self.pbar.update(1)
+            return
+
         if self.file_type is not None and self.file_type != file_type:
             progress = f'{progress} => skipped, file is "{file_type}" \
 but looking for "{self.file_type}"'
@@ -367,20 +376,29 @@ but looking for "{self.file_type}"'
                     try:
                         self.files_moved += 1
                         if not self.dry_run:
-                            shutil.move(filename, target_file)
+                            # shutil.move, copy2 doesn't work cross device
+                            shutil.copy(filename, target_file)
+                            os.remove(filename)
                     except FileNotFoundError:
                         progress = f'{progress} => skipped, no such file or directory'
                         if self.progress:
                             self.pbar.write(progress)
                         logger.warning(progress)
                         break
+                    except OSError:
+                        # volume might be unavailable, need remount
+                        progress = f'{progress} => skipped, cannot read source file.'
+                        if self.progress:
+                            self.pbar.write(progress)
+                        break
+
                 elif self.link and not self.dry_run:
                     os.link(filename, target_file)
                 else:
                     try:
                         self.files_copied += 1
                         if not self.dry_run:
-                            shutil.copy2(filename, target_file)
+                            shutil.copy(filename, target_file)
                     except FileNotFoundError:
                         progress = f'{progress} => skipped, no such file or directory'
                         if self.progress:

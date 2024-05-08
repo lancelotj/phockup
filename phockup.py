@@ -395,9 +395,6 @@ def cli():
         options = parse_args()
         setup_logging(options)
         main(options)
-    except Exception as e:
-        logger.warning(e)
-        sys.exit(1)
     except KeyboardInterrupt:
         logger.error("Exiting phockup...")
         sys.exit(1)
