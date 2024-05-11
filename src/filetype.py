@@ -22,6 +22,7 @@ image_extensions = set([
     'dds',
     'dib',
     'djvu',
+    'dng',
     'dxf',
     'e2d',
     'ecw',
